@@ -1,0 +1,32 @@
+<div class="donate-container">
+    <h1>Donate Food</h1>
+    <form #donateForm="ngForm" (ngSubmit)="onDonate(donateForm.value)">
+      <div>
+        <label for="foodType">Food Type</label>
+        <select id="foodType" name="foodType" ngModel required>
+          <option value="1">Fruits</option>
+          <option value="2">Vegetables</option>
+          <option value="3">Canned Goods</option>
+          <option value="4">Grains</option>
+        </select>
+      </div>
+  
+      <div>
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" name="quantity" ngModel required min="1" />
+      </div>
+  
+      <div>
+        <label for="expirationDate">Expiration Date</label>
+        <input type="date" id="expirationDate" name="expirationDate" ngModel required />
+      </div>
+  
+      <div>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" ngModel required></textarea>
+      </div>
+  
+      <button type="submit" [disabled]="!donateForm.valid">Donate</button>
+    </form>
+  </div>
+  

@@ -1,0 +1,35 @@
+<div class="orders-container">
+    <h1>My Orders</h1>
+  
+    <div *ngIf="orders.length === 0" class="no-orders">
+      <p>You have not placed any orders yet.</p>
+    </div>
+  
+    <div *ngIf="orders.length > 0">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Food Description</th>
+            <th>Quantity</th>
+            <th>Donation Date</th>
+            <th>Pickup Location</th>
+            <th>Pickup Time</th>
+            <th>Instructions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders">
+            <td>{{ order.Donation_Id }}</td>
+            <td>{{ order.Food_Description }}</td>
+            <td>{{ order.Food_Quantity }}</td>
+            <td>{{ order.Donation_Accepted_Date | date }}</td>
+            <td>{{ order.Pickup_Location || 'Not provided' }}</td>
+            <td>{{ order.Pickup_Time || 'Not scheduled' }}</td>
+            <td>{{ order.Special_Instructions || 'None' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  

@@ -1,0 +1,38 @@
+<div class="home-container">
+    <h1>Available Food Posts</h1>
+    <div *ngIf="errorMessage" class="error">
+        {{ errorMessage }}
+    </div>
+    <div *ngIf="foodPosts.length === 0 && !errorMessage">
+        <p>No food posts available at the moment.</p>
+    </div>
+    <div *ngIf="foodPosts.length > 0" class="grid-container">
+        <div *ngFor="let post of foodPosts" class="food-card">
+            <h3>{{ post.Type_Name }}</h3>
+            <p><strong>Quantity:</strong> {{ post.Quantity }}</p>
+            <p><strong>Expiration Date:</strong> {{ post.Expiration_Date | date:'yyyy-MM-dd' }}</p>
+            <p><strong>Description:</strong> {{ post.Description }}</p>
+            <button class="order-button" (click)="openOrderModal(post)">Order Now</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Pickup Details -->
+<div class="modal" *ngIf="selectedPost">
+    <div class="modal-content">
+        <h2>Pickup Details</h2>
+        <form (ngSubmit)="placeOrder(pickupForm)" #pickupForm="ngForm">
+            <label for="location">Pickup Location:</label>
+            <input type="text" id="location" name="location" ngModel required />
+
+            <label for="time">Pickup Time:</label>
+            <input type="datetime-local" id="time" name="time" ngModel required />
+
+            <label for="instructions">Special Instructions:</label>
+            <textarea id="instructions" name="instructions" ngModel></textarea>
+
+            <button type="submit">Place Order</button>
+            <button type="button" (click)="closeModal()">Cancel</button>
+        </form>
+    </div>
+</div>

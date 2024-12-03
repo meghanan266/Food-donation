@@ -1,0 +1,47 @@
+<div class="auth-container">
+    <h2>{{ isSignup ? 'Signup' : 'Login' }}</h2>
+  
+    <form *ngIf="!isSignup" (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" ngModel required />
+  
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" ngModel required />
+  
+      <button type="submit">Login</button>
+      <p>
+        Don't have an account? 
+        <button type="button" (click)="toggleForm()">Signup</button>
+      </p>
+    </form>
+  
+    <form *ngIf="isSignup" (ngSubmit)="onSignup(signupForm)" #signupForm="ngForm">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" ngModel required />
+  
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" ngModel required />
+      
+      <label for="phone_number">Phone Number:</label>
+      <input type="text" id="phone_number" name="phone_number" ngModel required />
+  
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" ngModel required />
+  
+      <label for="confirmPassword">Confirm Password:</label>
+      <input
+        type="password"
+        id="confirmPassword"
+        name="confirmPassword"
+        ngModel
+        required
+      />
+  
+      <button type="submit">Signup</button>
+      <p>
+        Already have an account?
+        <button type="button" (click)="toggleForm()">Login</button>
+      </p>
+    </form>
+  </div>
+  
