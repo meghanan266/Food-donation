@@ -26,4 +26,11 @@ export class FoodService {
     createFoodPost(donationData: any): Observable<any> {
         return this.http.post(`${this.baseUrl}/donate`, donationData);
     }
+
+    addFeedback(feedbackData: { donationId: number; rating: number; comments: string }): Observable<any> {
+        return this.http.post<any>(`${this.baseUrl}/feedback`, feedbackData, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      
 }

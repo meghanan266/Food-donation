@@ -1,35 +1,70 @@
 <div class="orders-container">
-    <h1>My Orders</h1>
-  
-    <div *ngIf="orders.length === 0" class="no-orders">
-      <p>You have not placed any orders yet.</p>
-    </div>
-  
-    <div *ngIf="orders.length > 0">
-      <table class="orders-table">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Food Description</th>
-            <th>Quantity</th>
-            <th>Donation Date</th>
-            <th>Pickup Location</th>
-            <th>Pickup Time</th>
-            <th>Instructions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let order of orders">
-            <td>{{ order.Donation_Id }}</td>
-            <td>{{ order.Food_Description }}</td>
-            <td>{{ order.Food_Quantity }}</td>
-            <td>{{ order.Donation_Accepted_Date | date }}</td>
-            <td>{{ order.Pickup_Location || 'Not provided' }}</td>
-            <td>{{ order.Pickup_Time || 'Not scheduled' }}</td>
-            <td>{{ order.Special_Instructions || 'None' }}</td>
-          </tr>
-        </tbody>
-      </table>
+  <h1>My Orders</h1>
+
+  <div *ngIf="orders.length === 0" class="no-orders">
+    <p>You have not placed any orders yet.</p>
+  </div>
+
+  <div *ngIf="orders.length > 0">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Food Description</th>
+          <th>Quantity</th>
+          <th>Donation Date</th>
+          <th>Pickup Location</th>
+          <th>Pickup Time</th>
+          <th>Instructions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of orders">
+          <td>{{ order.Donation_Id }}</td>
+          <td>{{ order.Food_Description }}</td>
+          <td>{{ order.Food_Quantity }}</td>
+          <td>{{ order.Donation_Accepted_Date | date }}</td>
+          <td>{{ order.Pickup_Location || 'Not provided' }}</td>
+          <td>{{ order.Pickup_Time || 'Not scheduled' }}</td>
+          <td>{{ order.Special_Instructions || 'None' }}</td>
+          <td>
+            <button (click)="openFeedbackPopup(order.Donation_Id)">Add Feedback</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Feedback Popup -->
+  <div class="feedback-popup" *ngIf="showFeedbackPopup">
+    <div class="popup-content">
+      <h2>Add Feedback</h2>
+
+      <label for="rating">Rating (1-5):</label>
+      <input
+        type="number"
+        id="rating"
+        [(ngModel)]="feedback.rating"
+        min="1"
+        max="5"
+        required
+      />
+
+      <label for="comments">Comments:</label>
+      <textarea
+        id="comments"
+        [(ngModel)]="feedback.comments"
+        placeholder="Write your feedback here..."
+        rows="4"
+      ></textarea>
+
+      <div class="popup-actions">
+        <button (click)="submitFeedback()" [disabled]="!feedback.rating || feedback.rating < 1 || feedback.rating > 5">
+          Submit
+        </button>
+        <button (click)="closeFeedbackPopup()">Cancel</button>
+      </div>
     </div>
   </div>
-  
+</div>

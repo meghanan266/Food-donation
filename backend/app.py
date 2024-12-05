@@ -471,7 +471,37 @@ def add_campaign():
         if connection and connection.is_connected():
             connection.close()
 
+# Fetch all campaigns (for non-admin users)
+@app.route('/api/campaigns', methods=['GET'])
+def get_all_campaigns():
+    connection = None
+    cursor = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        query = """
+        SELECT c.Campaign_Id, c.Name, c.Goal, c.Description, c.Date,
+               GROUP_CONCAT(v.Name) AS Volunteer_Names
+        FROM Campaign c
+        LEFT JOIN Campaign_Volunteer cv ON c.Campaign_Id = cv.Campaign_Id
+        LEFT JOIN Volunteer v ON cv.Volunteer_Id = v.Volunteer_Id
+        GROUP BY c.Campaign_Id
+        """
+        cursor.execute(query)
+        campaigns = cursor.fetchall()
 
+        for campaign in campaigns:
+            if campaign['Volunteer_Names']:
+                campaign['Volunteer_Names'] = campaign['Volunteer_Names'].split(',')
+
+        return jsonify(campaigns), 200
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
 
 @app.route('/api/admin/campaigns/<int:admin_id>', methods=['GET'])
 def get_campaigns_by_admin(admin_id):
@@ -753,6 +783,35 @@ def get_user_rewards(user_id):
         if connection.is_connected():
             connection.close()
 
+@app.route('/api/feedback', methods=['POST'])
+def add_feedback():
+    try:
+        data = request.json
+        donation_id = data.get('donationId')
+        rating = data.get('rating')
+        comments = data.get('comments')
+
+        if not all([donation_id, rating]):
+            return jsonify({"error": "Donation ID and Rating are required"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            INSERT INTO Feedback (Donation_Id, Rating, Comments)
+            VALUES (%s, %s, %s)
+            """,
+            (donation_id, rating, comments)
+        )
+        connection.commit()
+        return jsonify({"message": "Feedback added successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
 
 
 if __name__ == '__main__':

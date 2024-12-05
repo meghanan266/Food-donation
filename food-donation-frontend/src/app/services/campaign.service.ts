@@ -50,4 +50,9 @@ export class CampaignService {
       }
     );
   }
+
+  getAllCampaigns(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/campaigns`);
+  }
+
 }

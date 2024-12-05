@@ -26,7 +26,8 @@ export class CampaignComponent implements OnInit {
   };
 
   selectedVolunteers: number[] = []; // IDs of volunteers selected for editing
-  adminId: number | null = null;
+  userId: number | null = null;
+  isAdmin = false;
 
   constructor(
     private readonly campaignService: CampaignService,
@@ -34,16 +35,30 @@ export class CampaignComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.adminId = parseInt(localStorage.getItem('userId') || '0', 10);
-    this.getCampaigns();
-    this.getVolunteers();
+    this.userId = parseInt(localStorage.getItem('userId') || '0', 10);
+    this.isAdmin = localStorage.getItem('isAdmin') === 'true';
+    if (this.isAdmin) {
+      this.getCampaigns();
+      this.getVolunteers();
+    } else {
+      this.getAllCampaigns();
+    }
+  }
+
+
+  // Fetch all campaigns for non-admin users
+  getAllCampaigns(): void {
+    this.campaignService.getAllCampaigns().subscribe({
+      next: (response) => (this.campaigns = response),
+      error: (err) => console.error('Error fetching all campaigns:', err),
+    });
   }
 
   // Add Campaign with Admin Id
   addCampaign() {
     const campaignData = {
       ...this.newCampaign,
-      admin_id: this.adminId, // Include admin ID from local storage
+      admin_id: this.userId, // Include admin ID from local storage
       volunteers: this.selectedVolunteers, // Include selected volunteers
     };
     this.campaignService.addCampaign(campaignData).subscribe({
@@ -59,8 +74,8 @@ export class CampaignComponent implements OnInit {
 
   // Fetch Campaigns for Admin
   getCampaigns() {
-    if (this.adminId) {
-      this.campaignService.getCampaignsByAdmin(this.adminId).subscribe({
+    if (this.userId) {
+      this.campaignService.getCampaignsByAdmin(this.userId).subscribe({
         next: (response) => (this.campaigns = response),
         error: (err) => console.error('Error fetching campaigns:', err),
       });
