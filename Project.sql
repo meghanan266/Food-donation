@@ -10,6 +10,13 @@ CREATE TABLE User (
     Password VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE Admin (
+    Admin_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    Password VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE Reward_Tiers (
     Tier_Id INT PRIMARY KEY,           
     Tier_Name VARCHAR(50) UNIQUE NOT NULL,      
@@ -28,7 +35,7 @@ CREATE TABLE Reward_System (
     Reward_Id INT PRIMARY KEY AUTO_INCREMENT,
     User_Id INT NOT NULL,
     Points_Accumulated INT DEFAULT 0,
-    Tier_Id INT,
+    Tier_Id INT NOT NULL,
     FOREIGN KEY (User_Id) REFERENCES User(User_Id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (Tier_Id) REFERENCES Reward_Tiers(Tier_Id) ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -61,7 +68,7 @@ CREATE TABLE Campaign (
     Goal INT NOT NULL, -- Target quantity or donations
     Description TEXT NOT NULL,
     Admin_Id INT NOT NULL,
-    FOREIGN KEY (Admin_Id) REFERENCES Admin(Admin_Id) ON DELETE SET NULL ON UPDATE CASCADE
+    FOREIGN KEY (Admin_Id) REFERENCES Admin(Admin_Id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -76,18 +83,6 @@ CREATE TABLE Donation_Record (
     FOREIGN KEY (Recipient_Id) REFERENCES User(User_Id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (Campaign_Id) REFERENCES Campaign(Campaign_Id) ON DELETE SET NULL ON UPDATE CASCADE
 );
-
-
-CREATE TABLE Donation_Request (
-    Request_Id INT PRIMARY KEY AUTO_INCREMENT,
-    User_Id INT NOT NULL,
-    Type_Id INT NOT NULL,
-    Quantity INT NOT NULL CHECK (Quantity > 0),
-    Deadline DATE NOT NULL,
-    FOREIGN KEY (User_Id) REFERENCES User(User_Id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (Type_Id) REFERENCES Food_Type(Type_Id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
 
 CREATE TABLE Volunteer (
     Volunteer_Id INT PRIMARY KEY AUTO_INCREMENT,
@@ -116,14 +111,6 @@ CREATE TABLE Pickup_Detail (
     FOREIGN KEY (Donation_Id) REFERENCES Donation_Record(Donation_Id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
-CREATE TABLE Admin (
-    Admin_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Name VARCHAR(100) NOT NULL,
-    Email VARCHAR(100) UNIQUE NOT NULL,
-    Password VARCHAR(100) NOT NULL
-);
-
 CREATE TABLE Campaign_Volunteer (
     Campaign_Id INT NOT NULL,
     Volunteer_Id INT NOT NULL,
@@ -148,12 +135,16 @@ BEGIN
 
     -- Update the tier level only if it has changed
     IF New_Tier_Id != NEW.Tier_Id THEN
+        -- Use a separate UPDATE statement outside the trigger logic
+        SET @skip_trigger := TRUE; -- Prevent recursive updates
         UPDATE Reward_System
         SET Tier_Id = New_Tier_Id
         WHERE Reward_Id = NEW.Reward_Id;
+        SET @skip_trigger := FALSE;
     END IF;
 END $$
 DELIMITER ;
+
 
 
 
@@ -216,5 +207,6 @@ ON SCHEDULE EVERY 1 DAY
 DO
     UPDATE Food_Post
     SET Status = 'Expired'
-    WHERE Expiration_Date < CURRENT_DATE();
+    WHERE Expiration_Date < CURRENT_DATE() AND Status = 'Available';
+
 
