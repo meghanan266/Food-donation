@@ -25,7 +25,7 @@ export class CampaignService {
 
   // Update a campaign
   updateCampaign(campaign: any): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/campaigns/${campaign.id}`, campaign, {
+    return this.http.put<any>(`${this.baseUrl}/campaigns/${campaign.Campaign_Id}`, campaign, {
       headers: { 'Content-Type': 'application/json' },
     });
   }

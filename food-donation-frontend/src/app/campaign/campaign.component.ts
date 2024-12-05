@@ -103,8 +103,11 @@ export class CampaignComponent implements OnInit {
   updateCampaign() {
     if (this.selectedCampaign) {
       const updatedCampaign = {
-        ...this.selectedCampaign,
-        date: this.selectedCampaign.date,
+        Campaign_Id: this.selectedCampaign.Campaign_Id, // Ensure Campaign_Id is sent
+        name: this.selectedCampaign.name,
+        goal: this.selectedCampaign.goal,
+        description: this.selectedCampaign.description,
+        date: this.selectedCampaign.date, // Pass date explicitly
         volunteers: this.selectedVolunteers, // Include selected volunteers
       };
       this.campaignService.updateCampaign(updatedCampaign).subscribe({
