@@ -1,0 +1,31 @@
+<div class="feedback-container">
+    <h2>Feedbacks</h2>
+    <div *ngIf="feedbacks.length === 0" class="no-feedback">
+      <p>No feedback available.</p>
+    </div>
+    <table *ngIf="feedbacks.length > 0">
+      <thead>
+        <tr>
+          <th>Feedback ID</th>
+          <th>Donation ID</th>
+          <th>Food Description</th>
+          <th>Donor Name</th>
+          <th>Rating</th>
+          <th>Comments</th>
+          <th>Date Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let feedback of feedbacks">
+          <td>{{ feedback.Feedback_Id }}</td>
+          <td>{{ feedback.Donation_Id }}</td>
+          <td>{{ feedback.Food_Description }}</td>
+          <td>{{ feedback.Donor_Name }}</td>
+          <td>{{ feedback.Rating }}</td>
+          <td>{{ feedback.Comments }}</td>
+          <td>{{ feedback.Date_Submitted | date }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

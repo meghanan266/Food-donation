@@ -8,9 +8,11 @@ import { CampaignComponent } from './campaign/campaign.component';
 import { UserComponent } from './user/user.component';
 import { FoodTypeComponent } from './food-type/food-type.component';
 import { RewardsComponent } from './rewards/rewards.component';
+import { FeedbackComponent } from './feedback/feedback.component';
 
 export const routes: Routes = [
   { path: 'volunteers', component: VolunteerComponent },
+  { path: 'feedback', component: FeedbackComponent },
   { path: 'food-type', component: FoodTypeComponent },
   { path: 'users', component: UserComponent },
   { path: 'campaign', component: CampaignComponent },

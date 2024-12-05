@@ -811,6 +811,37 @@ def add_feedback():
         if connection.is_connected():
             connection.close()
 
+@app.route('/api/feedback', methods=['GET'])
+def get_all_feedback():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        query = """
+        SELECT 
+            f.Feedback_Id,
+            dr.Donation_Id,
+            fp.Description AS Food_Description,
+            u.Name AS Donor_Name,
+            f.Rating,
+            f.Comments,
+            f.Date_Submitted
+        FROM Feedback f
+        JOIN Donation_Record dr ON f.Donation_Id = dr.Donation_Id
+        JOIN Food_Post fp ON dr.Food_Post_Id = fp.Food_Post_Id
+        JOIN User u ON fp.Donor_Id = u.User_Id
+        """
+        cursor.execute(query)
+        feedbacks = cursor.fetchall()
+        return jsonify(feedbacks), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
