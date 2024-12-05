@@ -37,7 +37,7 @@ def login():
         user = cursor.fetchone()
 
         if user:
-            return jsonify({"message": "Login successful", "user": user}), 200
+            return jsonify({"message": "Login successful", "id": user['User_Id']}), 200
         else:
             return jsonify({"error": "Invalid email or password"}), 401
 
@@ -269,6 +269,490 @@ def donate():
             cursor.close()
         if connection and connection.is_connected():
             connection.close()
+
+@app.route('/api/admin/signup', methods=['POST'])
+def admin_signup():
+    try:
+        data = request.json
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
+
+        if not all([name, email, password]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO Admin (Name, Email, Password) VALUES (%s, %s, %s)
+        """, (name, email, password))
+        connection.commit()
+
+        return jsonify({"message": "Admin signup successful", "Admin_Id": cursor.lastrowid}), 201
+
+    except mysql.connector.IntegrityError:
+        return jsonify({"error": "Admin with this email already exists"}), 409
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+@app.route('/api/admin/login', methods=['POST'])
+def admin_login():
+    try:
+        data = request.json
+        email = data.get('email')
+        password = data.get('password')
+
+        if not all([email, password]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT * FROM Admin WHERE Email = %s AND Password = %s
+        """, (email, password))
+        admin = cursor.fetchone()
+
+        if admin:
+            return jsonify({"message": "Admin login successful", "id": admin['Admin_Id'], "isAdmin": "true"}), 200
+        else:
+            return jsonify({"error": "Invalid email or password"}), 401
+
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+@app.route('/api/volunteers', methods=['GET'])
+def get_volunteers():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Volunteer")
+        volunteers = cursor.fetchall()
+        return jsonify(volunteers), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+
+@app.route('/api/volunteers', methods=['POST'])
+def add_volunteer():
+    try:
+        data = request.json
+        name = data.get('name')
+        email = data.get('email')
+        phone_number = data.get('phone_number')
+        availability = data.get('availability')
+
+        if not all([name, email, phone_number, availability]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+            INSERT INTO Volunteer (Name, Email, Phone_Number, Availability)
+            VALUES (%s, %s, %s, %s)
+        """, (name, email, phone_number, availability))
+        connection.commit()
+
+        return jsonify({"message": "Volunteer added successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+
+@app.route('/api/volunteers/<int:volunteer_id>', methods=['PUT'])
+def update_volunteer(volunteer_id):
+    try:
+        data = request.json
+        name = data.get('name')
+        email = data.get('email')
+        phone_number = data.get('phone_number')
+        availability = data.get('availability')
+
+        if not all([name, email, phone_number, availability]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+            UPDATE Volunteer
+            SET Name = %s, Email = %s, Phone_Number = %s, Availability = %s
+            WHERE Volunteer_Id = %s
+        """, (name, email, phone_number, availability, volunteer_id))
+        connection.commit()
+
+        return jsonify({"message": "Volunteer updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+
+@app.route('/api/volunteers/<int:volunteer_id>', methods=['DELETE'])
+def delete_volunteer(volunteer_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM Volunteer WHERE Volunteer_Id = %s", (volunteer_id,))
+        connection.commit()
+        return jsonify({"message": "Volunteer deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+
+# Add a new campaign
+@app.route('/api/campaigns', methods=['POST'])
+def add_campaign():
+    connection = None
+    cursor = None
+    try:
+        data = request.json
+        name = data.get('name')
+        goal = data.get('goal')
+        description = data.get('description')
+        admin_id = data.get('admin_id')  # Admin adding the campaign
+        volunteer_ids = data.get('volunteers', [])  # List of volunteer IDs
+
+        if not all([name, goal, description, admin_id]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Insert campaign details with Admin_Id
+        cursor.execute(
+            "INSERT INTO Campaign (Name, Goal, Description, Admin_Id) VALUES (%s, %s, %s, %s)",
+            (name, goal, description, admin_id)
+        )
+        campaign_id = cursor.lastrowid
+        print("done")
+        # Link volunteers to the campaign
+        for volunteer_id in volunteer_ids:
+            cursor.execute(
+                "INSERT INTO Campaign_Volunteer (Campaign_Id, Volunteer_Id) VALUES (%s, %s)",
+                (campaign_id, volunteer_id)
+            )
+
+        connection.commit()
+        return jsonify({"message": "Campaign added successfully", "Campaign_Id": campaign_id}), 201
+
+    except Exception as e:
+        import traceback
+        print("Error adding campaign:", traceback.format_exc())
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
+
+
+
+@app.route('/api/admin/campaigns/<int:admin_id>', methods=['GET'])
+def get_campaigns_by_admin(admin_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        query = """
+        SELECT c.Campaign_Id, c.Name, c.Goal, c.Description,
+               GROUP_CONCAT(v.Name) AS Volunteer_Names,
+               GROUP_CONCAT(v.Volunteer_Id) AS Volunteer_Ids
+        FROM Campaign c
+        LEFT JOIN Campaign_Volunteer cv ON c.Campaign_Id = cv.Campaign_Id
+        LEFT JOIN Volunteer v ON cv.Volunteer_Id = v.Volunteer_Id
+        WHERE c.Admin_Id = %s
+        GROUP BY c.Campaign_Id
+        """
+        cursor.execute(query, (admin_id,))
+        campaigns = cursor.fetchall()
+
+        # Process volunteers into lists
+        for campaign in campaigns:
+            if campaign['Volunteer_Ids']:
+                campaign['Volunteer_Ids'] = [
+                    int(vid) for vid in campaign['Volunteer_Ids'].split(',')
+                ]
+            else:
+                campaign['Volunteer_Ids'] = []
+            campaign['Volunteer_Names'] = (
+                campaign['Volunteer_Names'].split(',') if campaign['Volunteer_Names'] else []
+            )
+
+        return jsonify(campaigns), 200
+
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+# Update a campaign
+@app.route('/api/campaigns/<int:campaign_id>', methods=['PUT'])
+def update_campaign(campaign_id):
+    connection = None
+    cursor = None
+    try:
+        data = request.json
+        name = data.get('name')
+        goal = data.get('goal')
+        description = data.get('description')
+        date = data.get('date')  # New date field
+        volunteer_ids = data.get('volunteers', [])  # List of volunteer IDs
+
+        # Validate required fields
+        if not all([name, goal, description, date]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Update campaign details
+        cursor.execute(
+            """
+            UPDATE Campaign 
+            SET Name = %s, Goal = %s, Description = %s, Date = %s 
+            WHERE Campaign_Id = %s
+            """,
+            (name, goal, description, date, campaign_id)
+        )
+
+        # Update campaign volunteers
+        cursor.execute("DELETE FROM Campaign_Volunteer WHERE Campaign_Id = %s", (campaign_id,))
+        for volunteer_id in volunteer_ids:
+            cursor.execute(
+                "INSERT INTO Campaign_Volunteer (Campaign_Id, Volunteer_Id) VALUES (%s, %s)",
+                (campaign_id, volunteer_id)
+            )
+
+        connection.commit()
+        return jsonify({"message": "Campaign updated successfully"}), 200
+
+    except Exception as e:
+        import traceback
+        print("Error updating campaign:", traceback.format_exc())
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
+
+
+# Delete a campaign
+@app.route('/api/campaigns/<int:campaign_id>', methods=['DELETE'])
+def delete_campaign(campaign_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Delete the campaign and associated volunteers
+        cursor.execute("DELETE FROM Campaign_Volunteer WHERE Campaign_Id = %s", (campaign_id,))
+        cursor.execute("DELETE FROM Campaign WHERE Campaign_Id = %s", (campaign_id,))
+
+        connection.commit()
+        return jsonify({"message": "Campaign deleted successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+@app.route('/api/users', methods=['GET'])
+def get_all_users():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute("SELECT User_Id, Name, Email, Phone_Number FROM User")
+        users = cursor.fetchall()
+
+        return jsonify(users), 200
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+
+@app.route('/api/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("DELETE FROM User WHERE User_Id = %s", (user_id,))
+        connection.commit()
+
+        return jsonify({"message": "User deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+@app.route('/api/food-types', methods=['GET'])
+def get_food_types():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM Food_Type")
+        food_types = cursor.fetchall()
+
+        return jsonify(food_types), 200
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+
+@app.route('/api/food-types', methods=['POST'])
+def add_food_type():
+    try:
+        data = request.json
+        type_name = data.get('Type_Name')
+
+        if not type_name:
+            return jsonify({"error": "Food type name is required"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("INSERT INTO Food_Type (Type_Name) VALUES (%s)", (type_name,))
+        connection.commit()
+
+        return jsonify({"message": "Food type added successfully"}), 201
+    except mysql.connector.IntegrityError:
+        return jsonify({"error": "Food type already exists"}), 409
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+
+@app.route('/api/food-types/<int:type_id>', methods=['PUT'])
+def update_food_type(type_id):
+    try:
+        data = request.json
+        type_name = data.get('Type_Name')
+
+        if not type_name:
+            return jsonify({"error": "Food type name is required"}), 400
+
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("UPDATE Food_Type SET Type_Name = %s WHERE Type_Id = %s", (type_name, type_id))
+        connection.commit()
+
+        return jsonify({"message": "Food type updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+
+@app.route('/api/food-types/<int:type_id>', methods=['DELETE'])
+def delete_food_type(type_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("DELETE FROM Food_Type WHERE Type_Id = %s", (type_id,))
+        connection.commit()
+
+        return jsonify({"message": "Food type deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
+
+@app.route('/api/rewards/<int:user_id>', methods=['GET'])
+def get_user_rewards(user_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        # Fetch the user's rewards
+        cursor.execute("""
+            SELECT rs.Points_Accumulated, rt.Tier_Name, rt.Min_Points, rt.Max_Points
+            FROM Reward_System rs
+            JOIN Reward_Tiers rt ON rs.Tier_Id = rt.Tier_Id
+            WHERE rs.User_Id = %s
+        """, (user_id,))
+        reward = cursor.fetchone()
+
+        if not reward:
+            return jsonify({"error": "Reward data not found"}), 404
+
+        # Fetch next tier (if any)
+        cursor.execute("""
+            SELECT Tier_Name, Min_Points
+            FROM Reward_Tiers
+            WHERE Min_Points > %s
+            ORDER BY Min_Points ASC
+            LIMIT 1
+        """, (reward['Points_Accumulated'],))
+        next_tier = cursor.fetchone()
+
+        reward['Next_Tier'] = next_tier  # Add next tier information
+        return jsonify(reward), 200
+
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection.is_connected():
+            connection.close()
+
 
 
 if __name__ == '__main__':

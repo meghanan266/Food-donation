@@ -1,0 +1,53 @@
+<div class="volunteer-container">
+    <h2>Manage Volunteers</h2>
+
+    <form (ngSubmit)="addVolunteer()" *ngIf="!isEditing">
+        <h3>Add Volunteer</h3>
+        <input type="text" [(ngModel)]="newVolunteer.name" name="name" placeholder="Name" required />
+        <input type="email" [(ngModel)]="newVolunteer.email" name="email" placeholder="Email" required />
+        <input type="text" [(ngModel)]="newVolunteer.phone_number" name="phone_number" placeholder="Phone Number"
+            required />
+        <input type="date" [(ngModel)]="newVolunteer.availability" name="availability" placeholder="Availability"
+            required />
+        <button type="submit">Add Volunteer</button>
+    </form>
+
+    <form (ngSubmit)="updateVolunteer()" *ngIf="isEditing">
+        <h3>Edit Volunteer</h3>
+        <input type="text" [(ngModel)]="selectedVolunteer.name" name="name" placeholder="Name" required />
+        <input type="email" [(ngModel)]="selectedVolunteer.email" name="email" placeholder="Email" required />
+        <input type="text" [(ngModel)]="selectedVolunteer.phone_number" name="phone_number" placeholder="Phone Number"
+            required />
+        <input type="date" [(ngModel)]="selectedVolunteer.availability" name="availability" placeholder="Availability"
+            required />
+        <button type="submit">Update Volunteer</button>
+        <button type="button" (click)="isEditing = false; selectedVolunteer = null;">Cancel</button>
+    </form>
+
+    <div class="volunteer-list">
+        <h3>Volunteer List</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Availability</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let volunteer of volunteers">
+                    <td>{{ volunteer.Name }}</td>
+                    <td>{{ volunteer.Email }}</td>
+                    <td>{{ volunteer.Phone_Number }}</td>
+                    <td>{{ volunteer.Availability | date: 'yyyy-MM-dd'}} </td>
+                    <td>
+                        <button (click)="editVolunteer(volunteer)">Edit</button>
+                        <button (click)="deleteVolunteer(volunteer.Volunteer_Id)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

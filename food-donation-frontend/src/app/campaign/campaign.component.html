@@ -1,0 +1,103 @@
+<div class="campaign-container">
+    <h2>Campaign Management</h2>
+
+    <!-- Add Campaign Form -->
+    <div *ngIf="!isEditing && !isAdding">
+        <h3>Add Campaign</h3>
+        <form (ngSubmit)="addCampaign()" #addCampaignForm="ngForm">
+            <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" [(ngModel)]="newCampaign.name" name="name" required #name="ngModel" />
+            </div>
+            <div>
+                <label for="goal">Goal:</label>
+                <input type="number" id="goal" [(ngModel)]="newCampaign.goal" name="goal" required #goal="ngModel" />
+            </div>
+
+            <div>
+                <label for="description">Description:</label>
+                <textarea id="description" [(ngModel)]="newCampaign.description" name="description" required
+                    #description="ngModel"></textarea>
+            </div>
+
+            <div>
+                <label for="date">Date:</label>
+                <input type="date" id="date" [(ngModel)]="newCampaign.date" name="date" required #date="ngModel" />
+
+            </div>
+
+            <h4>Select Volunteers:</h4>
+            <div *ngFor="let volunteer of volunteers">
+                <input type="checkbox" [id]="'volunteer-' + volunteer.Volunteer_Id" [value]="volunteer.Volunteer_Id"
+                    (change)="toggleVolunteerSelection(volunteer.Volunteer_Id)"
+                    [checked]="isVolunteerSelected(volunteer.Volunteer_Id)" />
+                <label [for]="'volunteer-' + volunteer.Volunteer_Id">{{ volunteer.Name }}</label>
+            </div>
+            <button type="submit" [disabled]="addCampaignForm.invalid">Add Campaign</button>
+        </form>
+
+    </div>
+
+    <!-- Edit Campaign Form -->
+    <div *ngIf="isEditing">
+        <h3>Edit Campaign</h3>
+        <form (ngSubmit)="updateCampaign()" #editCampaignForm="ngForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" [(ngModel)]="selectedCampaign.name" name="name" required #editName="ngModel" />
+
+
+            <label for="goal">Goal:</label>
+            <input type="number" id="goal" [(ngModel)]="selectedCampaign.goal" name="goal" required
+                #editGoal="ngModel" />
+
+
+            <label for="description">Description:</label>
+            <textarea id="description" [(ngModel)]="selectedCampaign.description" name="description" required
+                #editDescription="ngModel"></textarea>
+
+
+            <label for="date">Date:</label>
+            <input type="date" id="date" [(ngModel)]="selectedCampaign.date" name="date" required #editDate="ngModel" />
+
+            <h4>Select Volunteers:</h4>
+            <div *ngFor="let volunteer of volunteers">
+                <input type="checkbox" [id]="'edit-volunteer-' + volunteer.Volunteer_Id"
+                    [value]="volunteer.Volunteer_Id" (change)="toggleVolunteerSelection(volunteer.Volunteer_Id)"
+                    [checked]="isVolunteerSelected(volunteer.Volunteer_Id)" />
+                <label [for]="'edit-volunteer-' + volunteer.Volunteer_Id">{{ volunteer.Name }}</label>
+            </div>
+
+            <button type="submit" [disabled]="editCampaignForm.invalid">Update Campaign</button>
+            <button type="button" (click)="cancelEdit()">Cancel</button>
+        </form>
+
+    </div>
+
+    <!-- Campaign List -->
+    <div>
+        <h3>Campaigns</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Goal</th>
+                    <th>Description</th>
+                    <th>Volunteers</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let campaign of campaigns">
+                    <td>{{ campaign.Name }}</td>
+                    <td>{{ campaign.Goal }}</td>
+                    <td>{{ campaign.Description }}</td>
+                    <td>{{ campaign.Volunteer_Names || 'No volunteers assigned' }}</td>
+                    <td>
+                        <button (click)="editCampaign(campaign)">Edit</button>
+                        <button style="background-color: #e74c3c;" (click)="deleteCampaign(campaign.Campaign_Id)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

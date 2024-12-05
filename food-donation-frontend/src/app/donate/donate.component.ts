@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FoodService } from '../services/food.service';
 import { FormsModule } from '@angular/forms';
+import { FoodTypeService } from '../services/food-type-service';
 
 @Component({
   selector: 'app-donate',
@@ -9,8 +10,20 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './donate.component.html',
   styleUrl: './donate.component.css'
 })
-export class DonateComponent {
-  constructor(private foodPostService: FoodService) {}
+export class DonateComponent implements OnInit {
+  foodTypes: any;
+  constructor(private foodPostService: FoodService, private foodtype: FoodTypeService) { }
+
+  ngOnInit(): void {
+    this.fetchFoodTypes();
+  }
+
+  fetchFoodTypes() {
+    this.foodtype.getFoodTypes().subscribe({
+      next: (data) => (this.foodTypes = data),
+      error: (err) => console.error('Error fetching food types:', err)
+    });
+  }
 
   onDonate(formData: any): void {
     const donorId = localStorage.getItem('userId'); // Get logged-in user ID

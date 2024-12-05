@@ -1,0 +1,34 @@
+<div class="rewards-container">
+    <h2>Your Rewards</h2>
+  
+    <!-- Points and Tier -->
+    <div class="points-section">
+      <h3>Total Points: {{ points }}</h3>
+      <h4>Current Tier: {{ tierName }}</h4>
+    </div>
+  
+    <!-- Badge -->
+    <div class="badge-section">
+      <h4>Your Badge:</h4>
+      <img [src]="badgeUrl" alt="Badge" class="badge-image" />
+    </div>
+  
+    <!-- Progress to next tier -->
+    <div class="progress-section" *ngIf="nextTierPoints > 0">
+      <p>
+        Earn <strong>{{ nextTierPoints }}</strong> more points to reach the
+        <strong>{{ nextTierName }}</strong> tier!
+      </p>
+    </div>
+  
+    <!-- Suggestions -->
+    <div class="suggestions-section">
+      <h4>How to Earn More Points:</h4>
+      <ul>
+        <li>Donate more food items to help those in need.</li>
+        <li>Participate in campaigns and events.</li>
+        <li>Refer friends to join the platform.</li>
+      </ul>
+    </div>
+  </div>
+  

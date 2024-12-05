@@ -4,12 +4,21 @@
   </div>
   <nav class="navbar">
     <ul>
+      <!-- Shown to all users -->
       <li><a routerLink="/home" routerLinkActive="active">Home</a></li>
-      <li><a routerLink="/donate" routerLinkActive="active">Donate</a></li>
-      <li><a routerLink="/my-orders" routerLinkActive="active">My Orders</a></li>
-      <li><a routerLink="/campaigns" routerLinkActive="active">Campaigns</a></li>
-      <li><a routerLink="/rewards" routerLinkActive="active">Rewards</a></li>
-      <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
+      <li *ngIf="isLoggedIn"><a routerLink="/donate" routerLinkActive="active">Donate</a></li>
+      <li *ngIf="isLoggedIn"><a routerLink="/my-orders" routerLinkActive="active">My Orders</a></li>
+      <li *ngIf="isLoggedIn"><a routerLink="/rewards" routerLinkActive="active">Rewards</a></li>
+
+      <!-- Admin-only links -->
+      <li *ngIf="isAdmin"><a routerLink="/campaign" routerLinkActive="active">Campaigns</a></li>
+      <li *ngIf="isAdmin"><a routerLink="/volunteers" routerLinkActive="active">Volunteers</a></li>
+      <li *ngIf="isAdmin"><a routerLink="/users" routerLinkActive="active">Manage Users</a></li>
+      <li *ngIf="isAdmin"><a routerLink="/food-type" routerLinkActive="active">Food Type</a></li>
+
+      <!-- Login/Logout -->
+      <li *ngIf="!isLoggedIn"><a routerLink="/login" routerLinkActive="active">Login</a></li>
+      <li *ngIf="isLoggedIn"><a (click)="logout()">Logout</a></li>
     </ul>
   </nav>
 </header>

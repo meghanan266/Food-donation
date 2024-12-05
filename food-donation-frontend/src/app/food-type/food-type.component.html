@@ -1,0 +1,43 @@
+<div class="food-type-container">
+    <h2>Manage Food Types</h2>
+  
+    <!-- Add Food Type -->
+    <form (ngSubmit)="addFoodType()" #addForm="ngForm">
+      <div class="form-group">
+        <label for="foodTypeName">New Food Type:</label>
+        <input type="text" id="foodTypeName" name="name" [(ngModel)]="newFoodType" required />
+        <button type="submit" class="add-button" [disabled]="!addForm.form.valid">Add</button>
+      </div>
+    </form>
+  
+    <table class="food-type-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Food Type Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let foodType of foodTypes">
+          <td>{{ foodType.Type_Id }}</td>
+          <td>
+            <span *ngIf="!isEditing(foodType.Type_Id)">{{ foodType.Type_Name }}</span>
+            <input
+              *ngIf="isEditing(foodType.Type_Id)"
+              type="text"
+              [(ngModel)]="foodType.Type_Name"
+              name="typeName"
+            />
+          </td>
+          <td>
+            <button *ngIf="!isEditing(foodType.Type_Id)" class="button" (click)="editFoodType(foodType)">Edit</button>
+            <button *ngIf="isEditing(foodType.Type_Id)" class="button" (click)="updateFoodType(foodType)">Save</button>
+            <button *ngIf="isEditing(foodType.Type_Id)" class="button" (click)="cancelEdit()">Cancel</button>
+            <button (click)="deleteFoodType(foodType.Type_Id)" class="delete-button">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

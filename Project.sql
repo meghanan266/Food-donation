@@ -6,7 +6,7 @@ CREATE TABLE User (
     Name VARCHAR(100) NOT NULL,
     Phone_Number VARCHAR(15) UNIQUE NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
-    Registration_Date DATE NOT NULL DEFAULT current_timestamp,
+    Registration_Date DATETIME NOT NULL DEFAULT current_timestamp,
     Password VARCHAR(100) NOT NULL
 );
 
@@ -49,26 +49,27 @@ CREATE TABLE Food_Post (
     Expiration_Date DATE NOT NULL,
     Description TEXT NOT NULL,
     Status ENUM('Available', 'Ordered', 'Expired') DEFAULT 'Available',
-	FOREIGN KEY (Food_Type_Id) REFERENCES Food_Type(Type_Id) ON DELETE CASCADE ON UPDATE CASCADE,
+    Donation_Date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (Food_Type_Id) REFERENCES Food_Type(Type_Id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (Donor_Id) REFERENCES User(User_Id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-INSERT INTO Food_Post (Food_Type_Id, Donor_Id, Quantity, Expiration_Date, Description)
-VALUES 
-(1, 1, 10, '2024-12-01', 'Fresh Apples'),
-(2, 2, 20, '2024-12-05', 'Carrots'),
-(3, 3, 50, '2024-11-30', 'Canned Beans');
-
+CREATE TABLE Campaign (
+    Campaign_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Goal INT NOT NULL, -- Target quantity or donations
+    Description TEXT NOT NULL
+);
 
 CREATE TABLE Donation_Record (
     Donation_Id INT PRIMARY KEY AUTO_INCREMENT,
     Food_Post_Id INT NOT NULL, -- Links to the Food_Post being donated
     Recipient_Id INT NOT NULL, -- User receiving the donation
     Quantity INT NOT NULL CHECK (Quantity > 0),
-    Donation_Date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    Points_Received INT DEFAULT 0, -- Points awarded for this donation
     Campaign_Id INT, -- Optional link to campaigns
-   FOREIGN KEY (Food_Item_Id) REFERENCES Food_Post(Food_Post_Id) ON DELETE CASCADE ON UPDATE CASCADE,
+    Donation_Accepted_Date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (Food_Post_Id) REFERENCES Food_Post(Food_Post_Id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (Recipient_Id) REFERENCES User(User_Id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (Campaign_Id) REFERENCES Campaign(Campaign_Id) ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -82,19 +83,6 @@ CREATE TABLE Donation_Request (
     Deadline DATE NOT NULL,
     FOREIGN KEY (User_Id) REFERENCES User(User_Id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (Type_Id) REFERENCES Food_Type(Type_Id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-INSERT INTO Donation_Request (User_Id, Type_Id, Quantity, Deadline)
-VALUES 
-(2, 1, 5, '2024-12-10'),
-(1, 3, 10, '2024-11-28');
-
-CREATE TABLE Campaign (
-    Campaign_Id INT PRIMARY KEY AUTO_INCREMENT,
-    Name VARCHAR(100) NOT NULL,
-    Date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    Goal INT NOT NULL, -- Target quantity or donations
-    Description TEXT NOT NULL
 );
 
 
@@ -112,7 +100,7 @@ CREATE TABLE Feedback (
     Donation_Id INT NOT NULL, -- Links feedback to a specific donation
     Rating INT NOT NULL CHECK (Rating BETWEEN 1 AND 5), -- Rating from 1 to 5
     Comments TEXT,
-    Date_Submitted DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Date_Submitted DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (Donation_Id) REFERENCES Donation_Record(Donation_Id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -156,43 +144,78 @@ BEGIN
     FROM Reward_Tiers
     WHERE NEW.Points_Accumulated BETWEEN Min_Points AND Max_Points;
 
-    -- Update the tier level
-    UPDATE Reward_System
-    SET Tier_Id = New_Tier_Id
-    WHERE Reward_Id = NEW.Reward_Id;
-END $$
-DELIMITER ;
-
--- Trigger to Calculate Points and Update Donation_Record
-DELIMITER $$
-CREATE TRIGGER Calculate_Points
-AFTER INSERT ON Donation_Record
-FOR EACH ROW
-BEGIN
-    DECLARE Points INT;
-
-    -- Calculate points based on the donated quantity
-    SET Points = NEW.Quantity;
-
-    -- Add bonus points for donations over 50 units
-    IF NEW.Quantity > 50 THEN
-        SET Points = Points + 10; -- Example bonus rule
+    -- Update the tier level only if it has changed
+    IF New_Tier_Id != NEW.Tier_Id THEN
+        UPDATE Reward_System
+        SET Tier_Id = New_Tier_Id
+        WHERE Reward_Id = NEW.Reward_Id;
     END IF;
-
-    -- Update Points_Received in the Donation_Record table
-    UPDATE Donation_Record
-    SET Points_Received = Points
-    WHERE Donation_Id = NEW.Donation_Id;
-
-    -- Update Points_Accumulated in the Reward_System table
-    UPDATE Reward_System
-    SET Points_Accumulated = Points_Accumulated + Points
-    WHERE User_Id = (
-        SELECT Donor_Id
-        FROM Food_Post
-        WHERE Food_Post_Id = NEW.Food_Item_Id
-    );
 END $$
 DELIMITER ;
 
+
+
+DELIMITER $$
+CREATE FUNCTION CalculatePoints(quantity INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE points INT;
+    SET points = quantity;
+    IF quantity > 50 THEN
+        SET points = points + 10;
+    END IF;
+    RETURN points;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE PlaceOrder(
+    IN p_food_post_id INT,
+    IN p_recipient_id INT,
+    IN p_pickup_location VARCHAR(255),
+    IN p_pickup_time DATETIME,
+    IN p_special_instructions TEXT
+)
+BEGIN
+    DECLARE v_quantity INT;
+    DECLARE v_donor_id INT;
+    DECLARE v_points INT;
+
+    -- Validate Food_Post_Id and fetch details
+    SELECT Donor_Id, Quantity INTO v_donor_id, v_quantity
+    FROM Food_Post
+    WHERE Food_Post_Id = p_food_post_id;
+
+    -- Calculate points using the function
+    SET v_points = CalculatePoints(v_quantity);
+
+    -- Insert into Donation_Record
+    INSERT INTO Donation_Record (Food_Post_Id, Recipient_Id, Quantity, Donation_Accepted_Date)
+    VALUES (p_food_post_id, p_recipient_id, v_quantity, NOW());
+
+    -- Update Food_Post status
+    UPDATE Food_Post
+    SET Status = 'Ordered', Donation_Date = NOW()
+    WHERE Food_Post_Id = p_food_post_id;
+
+    -- Update Reward_System for the donor
+    UPDATE Reward_System
+    SET Points_Accumulated = Points_Accumulated + v_points
+    WHERE User_Id = v_donor_id;
+
+    -- Insert into Pickup_Detail
+    INSERT INTO Pickup_Detail (Donation_Id, Pickup_Location, Pickup_Time, Special_Instructions)
+    SELECT LAST_INSERT_ID(), p_pickup_location, p_pickup_time, p_special_instructions;
+END $$
+DELIMITER ;
+
+
+
+CREATE EVENT Expire_Food_Posts
+ON SCHEDULE EVERY 1 DAY
+DO
+    UPDATE Food_Post
+    SET Status = 'Expired'
+    WHERE Expiration_Date < CURRENT_DATE();
 
