@@ -59,8 +59,11 @@ CREATE TABLE Campaign (
     Name VARCHAR(100) NOT NULL,
     Date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     Goal INT NOT NULL, -- Target quantity or donations
-    Description TEXT NOT NULL
+    Description TEXT NOT NULL,
+    Admin_Id INT NOT NULL,
+    FOREIGN KEY (Admin_Id) REFERENCES Admin(Admin_Id) ON DELETE SET NULL ON UPDATE CASCADE
 );
+
 
 CREATE TABLE Donation_Record (
     Donation_Id INT PRIMARY KEY AUTO_INCREMENT,
@@ -108,7 +111,6 @@ CREATE TABLE Feedback (
 CREATE TABLE Pickup_Detail (
     Pickup_Id INT PRIMARY KEY AUTO_INCREMENT,
     Donation_Id INT NOT NULL, -- Links to the donation being picked up
-    Pickup_Location VARCHAR(255) NOT NULL,
     Pickup_Time DATETIME NOT NULL,
     Special_Instructions TEXT,
     FOREIGN KEY (Donation_Id) REFERENCES Donation_Record(Donation_Id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -173,7 +175,6 @@ DELIMITER $$
 CREATE PROCEDURE PlaceOrder(
     IN p_food_post_id INT,
     IN p_recipient_id INT,
-    IN p_pickup_location VARCHAR(255),
     IN p_pickup_time DATETIME,
     IN p_special_instructions TEXT
 )
@@ -205,12 +206,10 @@ BEGIN
     WHERE User_Id = v_donor_id;
 
     -- Insert into Pickup_Detail
-    INSERT INTO Pickup_Detail (Donation_Id, Pickup_Location, Pickup_Time, Special_Instructions)
-    SELECT LAST_INSERT_ID(), p_pickup_location, p_pickup_time, p_special_instructions;
+    INSERT INTO Pickup_Detail (Donation_Id, Pickup_Time, Special_Instructions)
+    SELECT LAST_INSERT_ID(), p_pickup_time, p_special_instructions;
 END $$
 DELIMITER ;
-
-
 
 CREATE EVENT Expire_Food_Posts
 ON SCHEDULE EVERY 1 DAY

@@ -48,12 +48,13 @@ export class RewardsComponent implements OnInit {
 
   getBadgeUrl(tierName: string): string {
     const badges: { [key: string]: string } = {
-      Bronze: 'src/assets/bronze.png',
+      Bronze: 'assets/bronze.png',
       Silver: 'assets/silver.png',
       Gold: 'assets/gold.png',
       Platinum: 'assets/platinum.png',
     };
-
+  
     return badges[tierName] || 'assets/default-badge.png';
   }
+  
 }

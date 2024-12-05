@@ -13,7 +13,6 @@
           <th>Food Description</th>
           <th>Quantity</th>
           <th>Donation Date</th>
-          <th>Pickup Location</th>
           <th>Pickup Time</th>
           <th>Instructions</th>
           <th>Actions</th>
@@ -25,7 +24,6 @@
           <td>{{ order.Food_Description }}</td>
           <td>{{ order.Food_Quantity }}</td>
           <td>{{ order.Donation_Accepted_Date | date }}</td>
-          <td>{{ order.Pickup_Location || 'Not provided' }}</td>
           <td>{{ order.Pickup_Time || 'Not scheduled' }}</td>
           <td>{{ order.Special_Instructions || 'None' }}</td>
           <td>

@@ -136,18 +136,17 @@ def place_order():
         data = request.get_json()
         food_post_id = data.get('Food_Post_Id')
         recipient_id = data.get('Recipient_Id')
-        pickup_location = data.get('Pickup_Location')
         pickup_time = data.get('Pickup_Time')
         special_instructions = data.get('Special_Instructions')
 
-        if not all([food_post_id, recipient_id, pickup_location, pickup_time]):
+        if not all([food_post_id, recipient_id, pickup_time]):
             return jsonify({"error": "Missing required fields"}), 400
 
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
 
         # Call the PlaceOrder procedure
-        cursor.callproc('PlaceOrder', [food_post_id, recipient_id, pickup_location, pickup_time, special_instructions])
+        cursor.callproc('PlaceOrder', [food_post_id, recipient_id, pickup_time, special_instructions])
 
         # Fetch Donor_Id and Points_Received from Food_Post
         cursor.execute("""
@@ -202,7 +201,6 @@ def get_user_orders(user_id):
                 fp.Quantity AS Food_Quantity,
                 fp.Expiration_Date AS Food_Expiration_Date,
                 dr.Donation_Accepted_Date,
-                pd.Pickup_Location,
                 pd.Pickup_Time,
                 pd.Special_Instructions
             FROM Donation_Record dr

@@ -22,9 +22,6 @@
     <div class="modal-content">
         <h2>Pickup Details</h2>
         <form (ngSubmit)="placeOrder(pickupForm)" #pickupForm="ngForm">
-            <label for="location">Pickup Location:</label>
-            <input type="text" id="location" name="location" ngModel required />
-
             <label for="time">Pickup Time:</label>
             <input type="datetime-local" id="time" name="time" ngModel required />
 

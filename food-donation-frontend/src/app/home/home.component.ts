@@ -54,7 +54,6 @@ export class HomeComponent implements OnInit {
 
     const orderData = {
       Food_Post_Id: this.selectedPost.Food_Post_Id,
-      Pickup_Location: pickupDetails.location,
       Pickup_Time: pickupDetails.time,
       Special_Instructions: pickupDetails.instructions,
       Recipient_Id: recipientId,
