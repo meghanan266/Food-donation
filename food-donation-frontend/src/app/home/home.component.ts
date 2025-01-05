@@ -14,10 +14,12 @@ export class HomeComponent implements OnInit {
   foodPosts: any[] = []; // Store food posts here
   errorMessage: string = '';
   selectedPost: any;
+  isAdmin = false;
 
   constructor(private foodPostService: FoodService, private router: Router) { }
 
   ngOnInit(): void {
+    this.isAdmin = localStorage.getItem('isAdmin') === 'true';
     this.fetchFoodPosts();
   }
 

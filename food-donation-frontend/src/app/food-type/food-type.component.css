@@ -1,24 +1,38 @@
+/* General Styling for the Container */
 .food-type-container {
     padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Header Styling */
 .food-type-container h2 {
     text-align: center;
     margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #333;
 }
 
+/* Form Group Styling */
 .form-group {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
+    align-items: center;
 }
 
+/* Input Field Styling */
 .form-group input {
-    padding: 8px;
+    padding: 10px;
     margin-right: 10px;
     width: 300px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
 }
 
+/* Table Styling */
 .food-type-table {
     width: 100%;
     border-collapse: collapse;
@@ -34,42 +48,73 @@
 
 .food-type-table th {
     background-color: #f5f5f5;
+    font-weight: bold;
 }
 
 .food-type-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
+/* Button Styling */
 .button {
-    margin-right: 10px;
-}
-
-.add-button,
-.delete-button,
-.button {
-    background-color: darkgray;
-    color: black;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 6px;
     cursor: pointer;
+    border: none;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
 }
 
-.add-button,
-.delete-button {
+/* Add Button */
+.add-button {
     background-color: #4caf50;
     color: white;
 }
 
-.add-button:hover,
-.delete-button:hover {
+.add-button:hover {
     background-color: #45a049;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
 }
 
+.add-button:active {
+    background-color: #388e3c;
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Delete Button */
 .delete-button {
     background-color: #e74c3c;
+    color: white;
 }
 
 .delete-button:hover {
     background-color: #c0392b;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.delete-button:active {
+    background-color: #c0392b;
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Disabled Button */
+.button:disabled {
+    background-color: #ccc;
+    color: #777;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Button Alignment and Margin */
+.button,
+.add-button,
+.delete-button {
+    margin-right: 10px;
 }

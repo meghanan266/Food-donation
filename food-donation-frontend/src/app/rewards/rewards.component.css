@@ -3,11 +3,17 @@
   max-width: 600px;
   margin: 0 auto;
   text-align: center;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .points-section h3 {
   font-size: 24px;
   color: #4caf50;
+  /* Green color for the points section */
+  font-weight: 600;
+  margin-bottom: 15px;
 }
 
 .badge-section img {
@@ -15,21 +21,43 @@
   height: 150px;
   margin: 20px 0;
   border-radius: 10rem;
+  /* Circular badges */
+  border: 3px solid #7091e6;
+  /* Accent border around the badge */
+  transition: transform 0.3s ease-in-out;
+}
+
+.badge-section img:hover {
+  transform: scale(1.05);
+  /* Slight zoom effect on hover */
 }
 
 .progress-section {
   margin: 20px 0;
   font-size: 18px;
   color: #f39c12;
+  /* Orange color for progress section */
+  font-weight: 500;
 }
 
 .suggestions-section ul {
   list-style-type: none;
   padding: 0;
+  margin-top: 10px;
 }
 
 .suggestions-section ul li {
   margin: 10px 0;
   font-size: 16px;
   color: #555;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.suggestions-section ul li:hover {
+  background-color: #ede8f5;
+  /* Light purple background on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

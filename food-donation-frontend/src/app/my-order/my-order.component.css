@@ -1,3 +1,4 @@
+/* Orders Container */
 .orders-container {
   max-width: 1000px;
   margin: 0 auto;
@@ -7,6 +8,8 @@
 h1 {
   text-align: center;
   margin-bottom: 20px;
+  color: #3d52a0;
+  /* Adjusting the color for consistency */
 }
 
 .orders-table {
@@ -18,13 +21,16 @@ h1 {
 .orders-table th,
 .orders-table td {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 12px 15px;
+  /* More padding for readability */
   text-align: left;
 }
 
 .orders-table th {
   background-color: #f4f4f4;
   font-weight: bold;
+  color: #3d52a0;
+  /* Header color adjustment */
 }
 
 .orders-table tbody tr:nth-child(even) {
@@ -39,9 +45,10 @@ h1 {
   text-align: center;
   font-size: 16px;
   color: #555;
+  margin-top: 20px;
 }
 
-
+/* Feedback Popup Styling */
 .feedback-popup {
   position: fixed;
   top: 0;
@@ -52,6 +59,8 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
+  /* Ensure it's on top of the content */
 }
 
 .popup-content {
@@ -65,18 +74,22 @@ h1 {
 
 .popup-content h2 {
   margin-bottom: 15px;
+  font-size: 1.8em;
+  color: #3d52a0;
+  /* Header color adjustment */
 }
 
 .popup-content label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
+  color: #3d52a0;
 }
 
 .popup-content textarea,
 .popup-content input {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 14px;
@@ -95,6 +108,7 @@ h1 {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .popup-actions button:first-child {
@@ -108,6 +122,30 @@ h1 {
 }
 
 .popup-actions button:disabled {
-  background-color: #ccc;
+  background-color: #ddd;
   cursor: not-allowed;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .orders-container {
+    padding: 15px;
+  }
+
+  .popup-content {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 8px 10px;
+    /* Adjusted padding for smaller screens */
+  }
+
+  .popup-actions button {
+    padding: 8px 15px;
+    /* Slightly smaller button on mobile */
+    font-size: 13px;
+  }
 }

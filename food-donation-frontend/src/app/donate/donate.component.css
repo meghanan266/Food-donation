@@ -1,7 +1,7 @@
 .donate-container {
   max-width: 600px;
   margin: 30px auto;
-  padding: 25px;
+  padding: 30px;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
   background-color: #ffffff;
@@ -16,21 +16,21 @@
 
 .donate-container h1 {
   text-align: center;
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 20px;
+  color: #3d52a0;
+  margin-bottom: 25px;
 }
 
 form div {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 form label {
   display: block;
   font-weight: bold;
   margin-bottom: 8px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #555;
 }
 
@@ -38,29 +38,52 @@ form input,
 form select,
 form textarea {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
+  margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1rem;
   background-color: #f9f9f9;
+  box-sizing: border-box;
+  /* Ensures padding and borders are included in the width */
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+form select {
+  display: block;
+  /* Ensure select takes up full width */
+  width: 100%;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #f9f9f9;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23ccc' d='M2 0L0 2h4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+  padding-right: 30px;
+  /* Space for the dropdown arrow */
 }
 
 form input:focus,
 form select:focus,
 form textarea:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  border-color: #7091e6;
+  box-shadow: 0 0 5px rgba(112, 145, 230, 0.5);
   outline: none;
+}
+
+form textarea {
+  resize: vertical;
 }
 
 button {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   font-size: 1rem;
   font-weight: bold;
   text-transform: uppercase;
-  background-color: #007bff;
+  background-color: #3d52a0;
   color: white;
   border: none;
   border-radius: 5px;
@@ -75,24 +98,12 @@ button:disabled {
 }
 
 button:hover:not(:disabled) {
-  background-color: #0056b3;
+  background-color: #7091e6;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 button:active:not(:disabled) {
-  background-color: #003f8f;
-}
-
-form select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23ccc' d='M2 0L0 2h4z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 10px;
-}
-
-form textarea {
-  resize: vertical;
+  background-color: #2c3b8a;
 }
 
 .donate-container small {
@@ -100,5 +111,28 @@ form textarea {
   font-size: 0.8rem;
   color: #999;
   margin-top: -10px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .donate-container {
+    padding: 20px;
+    margin: 20px;
+  }
+
+  .donate-container h1 {
+    font-size: 1.8rem;
+  }
+
+  form label {
+    font-size: 1rem;
+  }
+
+  form input,
+  form select,
+  form textarea {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
 }

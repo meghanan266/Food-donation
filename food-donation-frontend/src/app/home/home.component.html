@@ -1,9 +1,9 @@
-<div class="home-container">
-    <h1>Available Food Posts</h1>
+<div class="home-container" *ngIf="!isAdmin">
+    <h1 class="section-title">Available Food Posts</h1>
     <div *ngIf="errorMessage" class="error">
         {{ errorMessage }}
     </div>
-    <div *ngIf="foodPosts.length === 0 && !errorMessage">
+    <div *ngIf="foodPosts.length === 0 && !errorMessage" class="no-posts">
         <p>No food posts available at the moment.</p>
     </div>
     <div *ngIf="foodPosts.length > 0" class="grid-container">
@@ -28,8 +28,10 @@
             <label for="instructions">Special Instructions:</label>
             <textarea id="instructions" name="instructions" ngModel></textarea>
 
-            <button type="submit">Place Order</button>
-            <button type="button" (click)="closeModal()">Cancel</button>
+            <div class="modal-buttons">
+                <button type="submit">Place Order</button>
+                <button type="button" (click)="closeModal()">Cancel</button>
+            </div>
         </form>
     </div>
 </div>

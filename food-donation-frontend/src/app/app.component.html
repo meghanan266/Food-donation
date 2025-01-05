@@ -5,7 +5,7 @@
   <nav class="navbar">
     <ul>
       <!-- Shown to all users -->
-      <li><a routerLink="/home" routerLinkActive="active">Home</a></li>
+      <li *ngIf="isLoggedIn && !isAdmin"><a routerLink="/home" routerLinkActive="active">Home</a></li>
       <li *ngIf="isLoggedIn && !isAdmin"><a routerLink="/donate" routerLinkActive="active">Donate</a></li>
       <li *ngIf="isLoggedIn && !isAdmin"><a routerLink="/my-orders" routerLinkActive="active">My Orders</a></li>
       <li *ngIf="isLoggedIn && !isAdmin"><a routerLink="/rewards" routerLinkActive="active">Rewards</a></li>
